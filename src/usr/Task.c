@@ -26,7 +26,7 @@ void initTask(void)
 
 	vTaskStartScheduler();
 }
-void Task1(void)
+void Task1(void *pvParameters)
 {
 	ResetDevice();
 	SetBacklight(0xff);
@@ -37,7 +37,7 @@ void Task1(void)
 	{
 	}
 }
-void Task2(void)
+void Task2(void *pvParameters)
 {
 	while(1)
 	{
