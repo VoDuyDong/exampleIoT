@@ -1,12 +1,5 @@
 #include "SSD1963.h"
 
-uint16_t _clipRgn;
-// Clipping region borders
-uint16_t _clipLeft;
-uint16_t _clipTop;
-uint16_t _clipRight;
-uint16_t _clipBottom;
-
 // Active Page
 uint8_t  _activePage;
 // Visual Page
@@ -302,14 +295,11 @@ void GetPllStatus(void)
 
 void LCD_SetPoint(uint16_t Xpos,uint16_t Ypos,uint16_t point)
 {
+  uint16_t _clipRgn=1;
   if(_clipRgn){
-		if(Xpos<_clipLeft)
+		if(Xpos>799)
 			return;
-		if(Xpos>_clipRight)
-			return;
-		if(Ypos<_clipTop)
-			return;
-		if(Ypos>_clipBottom)
+		if(Ypos>479)
 			return;
 	}
 
@@ -509,405 +499,357 @@ void FillRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color)
 
 }
 
-void number_48pts(uint16_t x,uint16_t y,uint8_t data,unsigned short charColor,unsigned short bkColor)
-{
-	uint16_t sizeByteLine;
-	uint16_t w ;
-	uint16_t offset=0;
-	uint8_t asccii;
-	uint16_t i,j,k,temp2;
-	uint16_t size;
-	uint16_t a,b;
-
-	asccii = (uint8_t)data;
-	w = dSDigital_36ptDescriptors[asccii-45][0];
-	offset =  dSDigital_36ptDescriptors[asccii-45][1];
-	size = 6*w;
-	sizeByteLine = (size/w);
-	for(i=offset;i<offset+size;i+=(size/w)) //row
-	{
-		for(j=0;j<sizeByteLine;j++) //colum
-		{
-			temp2=dSDigital_36ptBitmaps[i+j];
-			for(k=0;k<8;k++)
-			{
-					if(temp2 &(0x01<<(7-k)))
-					{
-						a=x+(j*8)+k;
-						b=y+((i-offset)/(size/w));
-						LCD_SetPoint(b,a,charColor);
-					}
-			}
-		}
-	}
-}
 void Guitext_number_48pts(uint16_t row,uint16_t column,int8_t *string,unsigned short charColor,unsigned short bkColor)
 {
-	uint16_t sizeByteLine;
-	uint16_t size;
-	uint8_t i=0;
-	while(*(string+i)!='\0')
+	uint16_t sizeByteLine=0;
+	uint16_t size=0;
+	uint8_t n=0;
+	while(*(string+n)!='\0')
 	{
-		number_48pts(column,row,*(string+i),charColor,bkColor);
-		row+=(size/sizeByteLine)+3;
-		i++;
-	}  
-}
-
-void text_28pts(uint16_t x,uint16_t y,uint8_t data,unsigned short charColor,unsigned short bkColor)
-{
-	uint16_t sizeByteLine;
-	uint16_t w ;
-	uint16_t offset=0;
-	uint8_t asccii;
-	uint16_t i,j,k,temp2;
-	uint16_t size;
-	uint16_t a,b;
-	
-	asccii = (uint8_t)data;
-	w = eurostileExtended_28ptDescriptors[asccii-72][0];
-	offset =  eurostileExtended_28ptDescriptors[asccii-72][1];
-	size = 5*w;
-	sizeByteLine = (size/w);
-	for(i=offset;i<offset+size;i+=(size/w)) //row
-	{
-		for(j=0;j<sizeByteLine;j++) //col
+		uint16_t w=0 ;
+		uint16_t offset=0;
+		uint8_t asccii=0;
+		uint16_t i=0,j=0,k=0,temp2=0;
+		
+		uint16_t a=0,b=0;
+		asccii = (uint8_t)(*(string+n));
+		w = dSDigital_36ptDescriptors[asccii-45][0];
+		offset =  dSDigital_36ptDescriptors[asccii-45][1];
+		size = 6*w;
+		sizeByteLine = (size/w);
+		for(i=offset;i<offset+size;i+=(size/w)) //row
 		{
-			temp2=eurostileExtended_28ptBitmaps[i+j];
-			for(k=0;k<8;k++)
+			for(j=0;j<sizeByteLine;j++) //colum
 			{
-					if(temp2 &(0x01<<(7-k)))
-					{
-						a=x+(j*8)+k;
-						b=y+((i-offset)/(size/w));
-						LCD_SetPoint(b,a,charColor);
-					}
+				temp2=dSDigital_36ptBitmaps[i+j];
+				for(k=0;k<8;k++)
+				{
+						if(temp2 &(0x01<<(7-k)))
+						{
+							a=column+(j*8)+k;
+							b=row+((i-offset)/(size/w));
+							LCD_SetPoint(b,a,charColor);
+						}
 				}
 			}
 		}
+		row+=(size/sizeByteLine)+3;
+		n++;
+	}  
 }
+
 void Guitext_text_28pts(uint16_t row,uint16_t column,int8_t *string,unsigned short charColor,unsigned short bkColor)
 {
-	uint16_t sizeByteLine;
-	uint16_t size;
-	uint8_t i=0;
-	while(*(string+i)!='\0')
+
+	uint16_t sizeByteLine=0;
+	uint16_t size=0;
+	uint8_t n=0;
+	while(*(string+n)!='\0')
 	{
-		text_28pts(column,row,*(string+i),charColor,bkColor);
-		row+=(size/sizeByteLine)+3;
-		i++;
-	}
-}
-void text_18pts(uint16_t x,uint16_t y,uint8_t data,unsigned short charColor,unsigned short bkColor)
-{
-	uint16_t sizeByteLine;
-	uint16_t w ;
-	uint16_t offset=0;
-	uint8_t asccii;
-	uint16_t i,j,k,temp2;
-	uint16_t size;
-	uint16_t a,b;
-	
-	asccii = (uint8_t)data;
-	w = eurostileExtended_18ptDescriptors[asccii-49][0];
-	offset =  eurostileExtended_18ptDescriptors[asccii-49][1];
-	size = 3*w;
-	sizeByteLine = (size/w);
-	for(i=offset;i<offset+size;i+=(size/w)) //row
-	{
-		for(j=0;j<sizeByteLine;j++) //col
+		uint16_t w=0 ;
+		uint16_t offset=0;
+		uint8_t asccii=0;
+		uint16_t i=0,j=0,k=0,temp2=0;
+		
+		uint16_t a=0,b=0;
+		asccii = (uint8_t)(*(string+n));
+		w = eurostileExtended_28ptDescriptors[asccii-72][0];
+		offset =  eurostileExtended_28ptDescriptors[asccii-72][1];
+		size = 5*w;
+		sizeByteLine = (size/w);
+		for(i=offset;i<offset+size;i+=(size/w)) //row
 		{
-			temp2=eurostileExtended_18ptBitmaps[i+j];
-			for(k=0;k<8;k++)
+			for(j=0;j<sizeByteLine;j++) //col
 			{
+				temp2=eurostileExtended_28ptBitmaps[i+j];
+				for(k=0;k<8;k++)
+				{
 					if(temp2 &(0x01<<(7-k)))
 					{
-						a=x+(j*8)+k;
-						b=y+((i-offset)/(size/w));
+						a=column+(j*8)+k;
+						b=row+((i-offset)/(size/w));
 						LCD_SetPoint(b,a,charColor);
 					}
 				}
 			}
 		}
+		row+=(size/sizeByteLine)+3;
+		n++;
+	}
 }
+
+
 void Guitext_text_18pts(uint16_t row,uint16_t column,int8_t *string,unsigned short charColor,unsigned short bkColor)
 {
-	uint16_t sizeByteLine;
-	uint16_t size;
-	uint8_t i=0;
-	while(*(string+i)!='\0')
+	uint16_t sizeByteLine=0;
+	uint16_t size=0;
+	uint8_t n=0;
+	while(*(string+n)!='\0')
 	{
-		text_18pts(column,row,*(string+i),charColor,bkColor);
-		row+=(size/sizeByteLine)+3;
-		i++;
-	}  
-}
-void text_72pts(uint16_t x,uint16_t y,uint8_t data,unsigned short charColor,unsigned short bkColor)
-{
-	uint16_t sizeByteLine;
-	uint16_t w ;
-	uint16_t offset=0;
-	uint8_t asccii;
-	uint16_t i,j,k,temp2;
-	uint16_t size;
-	uint16_t a,b;
-	
-	asccii = (uint8_t)data;
-	w = digital_72ptDescriptors[asccii-37][0];
-	offset =  digital_72ptDescriptors[asccii-37][1];
-	size = 9*w;
-	sizeByteLine = (size/w);
-	for(i=offset;i<offset+size;i+=(size/w)) //row
-	{
-		for(j=0;j<sizeByteLine;j++) //col
+		uint16_t w=0 ;
+		uint16_t offset=0;
+		uint8_t asccii=0;
+		uint16_t i=0,j=0,k=0,temp2=0;
+		
+		uint16_t a=0,b=0;
+		asccii = (uint8_t)(*(string+n));
+		w = eurostileExtended_18ptDescriptors[asccii-49][0];
+		offset =  eurostileExtended_18ptDescriptors[asccii-49][1];
+		size = 3*w;
+		sizeByteLine = (size/w);
+		for(i=offset;i<offset+size;i+=(size/w)) //row
 		{
-			temp2=digital_72ptBitmaps[i+j];
-			for(k=0;k<8;k++)
+			for(j=0;j<sizeByteLine;j++) //col
 			{
-				a=x+(j*8)+k;
-				b=y+((i-offset)/(size/w));
+				temp2=eurostileExtended_18ptBitmaps[i+j];
+				for(k=0;k<8;k++)
+				{
 					if(temp2 &(0x01<<(7-k)))
 					{
+						a=column+(j*8)+k;
+						b=row+((i-offset)/(size/w));
 						LCD_SetPoint(b,a,charColor);
 					}
 				}
 			}
 		}
+		row+=(size/sizeByteLine)+3;
+		n++;
+	}  
 }
+
 void Guitext_text_72pts(uint16_t row,uint16_t column,int8_t *string,unsigned short charColor,unsigned short bkColor)
 {
-	uint16_t sizeByteLine;
-	uint16_t size;
-	uint8_t i=0;
-	while(*(string+i)!='\0')
+	uint16_t sizeByteLine=0;
+	uint16_t size=0;
+	uint8_t n=0;
+	while(*(string+n)!='\0')
 	{
-		text_72pts(column,row,*(string+i),charColor,bkColor);
-		row+=(size/sizeByteLine)+5;
-		i++;
-	}  
-}
-void text_27pts(uint16_t x,uint16_t y,uint8_t data,unsigned short charColor,unsigned short bkColor)
-{
-	uint16_t sizeByteLine;
-	uint16_t w ;
-	uint16_t offset=0;
-	uint8_t asccii;
-	uint16_t i,j,k,temp2;
-	uint16_t size;
-	uint16_t a,b;
-	
-	asccii = (uint8_t)data;
-	w = digital_28ptDescriptors[asccii-37][0];
-	offset =  digital_28ptDescriptors[asccii-37][1];
-	size = 4*w;
-	sizeByteLine = (size/w);
-	for(i=offset;i<offset+size;i+=(size/w)) //row
-	{
-		for(j=0;j<sizeByteLine;j++) //col
+		uint16_t w=0 ;
+		uint16_t offset=0;
+		uint8_t asccii=0;
+		uint16_t i=0,j=0,k=0,temp2=0;
+		uint16_t a=0,b=0;
+
+		asccii = (uint8_t)(*(string+n));
+		w = digital_72ptDescriptors[asccii-37][0];
+		offset =  digital_72ptDescriptors[asccii-37][1];
+		size = 9*w;
+		sizeByteLine = (size/w);
+		for(i=offset;i<offset+size;i+=(size/w)) //row
 		{
-			temp2=digital_28ptBitmaps[i+j];
-			for(k=0;k<8;k++)
+			for(j=0;j<sizeByteLine;j++) //col
 			{
+				temp2=digital_72ptBitmaps[i+j];
+				for(k=0;k<8;k++)
+				{
+					a=column+(j*8)+k;
+					b=row+((i-offset)/(size/w));
 					if(temp2 &(0x01<<(7-k)))
 					{
-						a=x+(j*8)+k;
-						b=y+((i-offset)/(size/w));
 						LCD_SetPoint(b,a,charColor);
 					}
 				}
 			}
 		}
+		row+=(size/sizeByteLine)+5;
+		n++;
+	}  
 }
+
 void Guitext_text_27pts(uint16_t row,uint16_t column,int8_t *string,unsigned short charColor,unsigned short bkColor)
 {
-	uint16_t sizeByteLine;
-	uint16_t size;
-	uint8_t i=0;
-		while(*(string+i)!='\0')
-		{
-			text_27pts(column,row,*(string+i),charColor,bkColor);
-			row+=(size/sizeByteLine)+3;
-			i++;
-		}  
-}
-void text_35pts(uint16_t x,uint16_t y,uint8_t data,unsigned short charColor,unsigned short bkColor)
-{
-	uint16_t sizeByteLine;
-	uint16_t w ;
-	uint16_t offset=0;
-	uint8_t asccii;
-	uint16_t i,j,k,temp2;
-	uint16_t size;
-	uint16_t a,b;
-	
-	asccii = (uint8_t)data;
-	w = dSDigital_35ptDescriptors[asccii-70][0];
-	offset =  dSDigital_35ptDescriptors[asccii-70][1];
-	size = 4*w;
-	sizeByteLine = (size/w);
-	for(i=offset;i<offset+size;i+=(size/w)) //row
+	uint16_t sizeByteLine=0;
+	uint16_t size=0;
+	uint8_t n=0;
+	while(*(string+n)!='\0')
 	{
-		for(j=0;j<sizeByteLine;j++) //col
+		uint16_t w=0 ;
+		uint16_t offset=0;
+		uint8_t asccii=0;
+		uint16_t i=0,j=0,k=0,temp2=0;
+		uint16_t a=0,b=0;
+
+		asccii = (uint8_t)(*(string+n));
+		w = digital_28ptDescriptors[asccii-37][0];
+		offset =  digital_28ptDescriptors[asccii-37][1];
+		size = 4*w;
+		sizeByteLine = (size/w);
+		for(i=offset;i<offset+size;i+=(size/w)) //row
 		{
-			temp2=dSDigital_35ptBitmaps[i+j];
-			for(k=0;k<8;k++)
+			for(j=0;j<sizeByteLine;j++) //col
 			{
+				temp2=digital_28ptBitmaps[i+j];
+				for(k=0;k<8;k++)
+				{
 					if(temp2 &(0x01<<(7-k)))
 					{
-						a=x+(j*8)+k;
-						b=y+((i-offset)/(size/w));
+						a=column+(j*8)+k;
+						b=row+((i-offset)/(size/w));
 						LCD_SetPoint(b,a,charColor);
 					}
 				}
 			}
-		}
+		}			
+		row+=(size/sizeByteLine)+3;
+		n++;
+	}  
 }
+
 void Guitext_text_35pts(uint16_t row,uint16_t column,int8_t *string,unsigned short charColor,unsigned short bkColor)
 {
-	uint16_t sizeByteLine;
-	uint16_t size;
-	uint8_t i=0;
-	while(*(string+i)!='\0')
+	uint16_t sizeByteLine=0;
+	uint16_t size=0;
+	uint8_t n=0;
+	while(*(string+n)!='\0')
 	{
-		text_35pts(column,row,*(string+i),charColor,bkColor);
-		row+=(size/sizeByteLine)+3;
-		i++;
-	}
-}
+		uint16_t w=0 ;
+		uint16_t offset=0;
+		uint8_t asccii=0;
+		uint16_t i=0,j=0,k=0,temp2=0;
+		uint16_t a=0,b=0;
 
-
-void text_72dspts(uint16_t x,uint16_t y,uint8_t data,unsigned short charColor,unsigned short bkColor)
-{
-	uint16_t sizeByteLine;
-	uint16_t w ;
-	uint16_t offset=0;
-	uint8_t asccii;
-	uint16_t i,j,k,temp2;
-	uint16_t size;
-	uint16_t a,b;
-	
-	asccii = (uint8_t)data;
-	w = dSDigital_72ptDescriptors[asccii-37][0];
-	offset =  dSDigital_72ptDescriptors[asccii-37][1];
-	size = 8*w;
-	sizeByteLine = (size/w);
-	for(i=offset;i<offset+size;i+=(size/w)) //row
-	{
-		for(j=0;j<sizeByteLine;j++) //col
+		asccii = (uint8_t)(*(string+n));
+		w = dSDigital_35ptDescriptors[asccii-70][0];
+		offset =  dSDigital_35ptDescriptors[asccii-70][1];
+		size = 4*w;
+		sizeByteLine = (size/w);
+		for(i=offset;i<offset+size;i+=(size/w)) //row
 		{
-			temp2=dSDigital_72ptBitmaps[i+j];
-			for(k=0;k<8;k++)
+			for(j=0;j<sizeByteLine;j++) //col
 			{
+				temp2=dSDigital_35ptBitmaps[i+j];
+				for(k=0;k<8;k++)
+				{
 					if(temp2 &(0x01<<(7-k)))
 					{
-						a=x+(j*8)+k;
-						b=y+((i-offset)/(size/w));
+						a=column+(j*8)+k;
+						b=row+((i-offset)/(size/w));
 						LCD_SetPoint(b,a,charColor);
 					}
 				}
 			}
 		}
+		row+=(size/sizeByteLine)+3;
+		n++;
+	}
 }
+
+
 void Guitext_text_72dspts(uint16_t row,uint16_t column,int8_t *string,unsigned short charColor,unsigned short bkColor)
 {
-	uint16_t sizeByteLine;
-	uint16_t size;
-	uint8_t i=0;
-	while(*(string+i)!='\0')
+	uint16_t sizeByteLine=0;
+	uint16_t size=0;
+	uint8_t n=0;
+	while(*(string+n)!='\0')
 	{
-		text_72dspts(column,row,*(string+i),charColor,bkColor);
-		row+=(size/sizeByteLine)+3;
-		i++;
-	}
-}
-void text_18dspts(uint16_t x,uint16_t y,uint8_t data,unsigned short charColor,unsigned short bkColor)
-{
-	uint16_t sizeByteLine;
-	uint16_t w ;
-	uint16_t offset=0;
-	uint8_t asccii;
-	uint16_t i,j,k,temp2;
-	uint16_t size;
-	uint16_t a,b;
+		uint16_t w=0 ;
+		uint16_t offset=0;
+		uint8_t asccii=0;
+		uint16_t i=0,j=0,k=0,temp2=0;
+		uint16_t a=0,b=0;
 
-	asccii = (uint8_t)data;
-	w = dSDigital_18ptDescriptors[asccii-65][0];
-	offset =  dSDigital_18ptDescriptors[asccii-65][1];
-	size = 2*w;
-	sizeByteLine = (size/w);
-	for(i=offset;i<offset+size;i+=(size/w)) //row
-	{
-		for(j=0;j<sizeByteLine;j++) //col
+		asccii = (uint8_t)(*(string+n));
+		w = dSDigital_72ptDescriptors[asccii-37][0];
+		offset =  dSDigital_72ptDescriptors[asccii-37][1];
+		size = 8*w;
+		sizeByteLine = (size/w);
+		for(i=offset;i<offset+size;i+=(size/w)) //row
 		{
-			temp2=dSDigital_18ptBitmaps[i+j];
-			for(k=0;k<8;k++)
+			for(j=0;j<sizeByteLine;j++) //col
 			{
+				temp2=dSDigital_72ptBitmaps[i+j];
+				for(k=0;k<8;k++)
+				{
 					if(temp2 &(0x01<<(7-k)))
 					{
-						a=x+(j*8)+k;
-						b=y+((i-offset)/(size/w));
+						a=column+(j*8)+k;
+						b=row+((i-offset)/(size/w));
 						LCD_SetPoint(b,a,charColor);
 					}
 				}
 			}
 		}
+		row+=(size/sizeByteLine)+3;
+		n++;
+	}
 }
+
 void Guitext_text_18dspts(uint16_t row,uint16_t column,int8_t *string,unsigned short charColor,unsigned short bkColor)
 {
-	uint16_t sizeByteLine;
-	uint16_t size;
-	uint8_t i=0;
-	while(*(string+i)!='\0')
+	uint16_t sizeByteLine=0;
+	uint16_t size=0;
+	uint8_t n=0;
+	while(*(string+n)!='\0')
 	{
-		text_18dspts(column,row,*(string+i),charColor,bkColor);
+		uint16_t w=0 ;
+		uint16_t offset=0;
+		uint8_t asccii=0;
+		uint16_t i=0,j=0,k=0,temp2=0;
+		uint16_t a=0,b=0;
+
+		asccii = (uint8_t)(*(string+n));
+		w = dSDigital_18ptDescriptors[asccii-65][0];
+		offset =  dSDigital_18ptDescriptors[asccii-65][1];
+		size = 2*w;
+		sizeByteLine = (size/w);
+		for(i=offset;i<offset+size;i+=(size/w)) //row
+		{
+			for(j=0;j<sizeByteLine;j++) //col
+			{
+				temp2=dSDigital_18ptBitmaps[i+j];
+				for(k=0;k<8;k++)
+				{
+					if(temp2 &(0x01<<(7-k)))
+					{
+						a=column+(j*8)+k;
+						b=row+((i-offset)/(size/w));
+						LCD_SetPoint(b,a,charColor);
+					}
+				}
+			}
+		}
 		row+=(size/sizeByteLine)+3;
-		i++;
+		n++;
 	}  
 }
 
 
-void text_eurostile_28pt(uint16_t x,uint16_t y,uint8_t data,unsigned short charColor,unsigned short bkColor)
+void Guitext_text_eurostile_28pt(uint16_t row,uint16_t column,int8_t *string,unsigned short charColor,unsigned short bkColor)
 {
-	uint16_t sizeByteLine;
-	uint16_t w ;
-	uint16_t offset=0;
-	uint8_t asccii;
-	uint16_t i,j,k,temp2;
-	uint16_t size;
-	uint16_t a,b;
-	
-	asccii = (uint8_t)data;
-	w = eurostile_28ptDescriptors[asccii-35][0];
-	offset =  eurostile_28ptDescriptors[asccii-35][1];
-	size = 4*w;
-	sizeByteLine = (size/w);
-	for(i=offset;i<offset+size;i+=(size/w)) //row
+	uint16_t sizeByteLine=0;
+	uint16_t size=0;
+	uint8_t n=0;
+	while(*(string+n)!='\0')
 	{
-		for(j=0;j<sizeByteLine;j++) //col
+		uint16_t w=0 ;
+		uint16_t offset=0;
+		uint8_t asccii=0;
+		uint16_t i=0,j=0,k=0,temp2=0;
+		uint16_t a=0,b=0;
+
+		asccii = (uint8_t)(*(string+n));
+		w = eurostile_28ptDescriptors[asccii-35][0];
+		offset =  eurostile_28ptDescriptors[asccii-35][1];
+		size = 4*w;
+		sizeByteLine = (size/w);
+		for(i=offset;i<offset+size;i+=(size/w)) //row
 		{
-			temp2=eurostile_28ptBitmaps[i+j];
-			for(k=0;k<8;k++)
+			for(j=0;j<sizeByteLine;j++) //col
 			{
+				temp2=eurostile_28ptBitmaps[i+j];
+				for(k=0;k<8;k++)
+				{
 					if(temp2 &(0x01<<(7-k)))
 					{
-						a=x+(j*8)+k;
-						b=y+((i-offset)/(size/w));
+						a=column+(j*8)+k;
+						b=row+((i-offset)/(size/w));
 						LCD_SetPoint(b,a,charColor);
 					}
 				}
 			}
 		}
-}
-void Guitext_text_eurostile_28pt(uint16_t row,uint16_t column,int8_t *string,unsigned short charColor,unsigned short bkColor)
-{
-	uint16_t sizeByteLine;
-	uint16_t size;
-	
-	uint8_t i=0;
-	while(*(string+i)!='\0')
-	{
-		text_eurostile_28pt(column,row,*(string+i),charColor,bkColor);
 		row+=(size/sizeByteLine)+3;
-		i++;
+		n++;
 	}  
 }
