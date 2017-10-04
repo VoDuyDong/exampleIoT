@@ -44,7 +44,7 @@ uint16_t ReadData(void)
 /* FSMC initialization function */
 void MX_FSMC_Init(void)
 {
-<<<<<<< HEAD
+
 	int FSMC_Bank = 0;
 	FSMC_Bank1->BTCR[FSMC_Bank+1] = FSMC_BTR1_ADDSET_1 | FSMC_BTR1_DATAST_1;
 
@@ -128,129 +128,6 @@ void HAL_FSMC_MspInit(void)
 	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_SET); 
-=======
-SRAM_HandleTypeDef sram_init_struct;
-FSMC_NORSRAM_TimingTypeDef fsmc_norsram_timing_struct = {0};
-
-sram_init_struct.Instance = FSMC_NORSRAM_DEVICE;
-sram_init_struct.Extended = FSMC_NORSRAM_EXTENDED_DEVICE;
-
-fsmc_norsram_timing_struct.AddressSetupTime       = 0;
-fsmc_norsram_timing_struct.AddressHoldTime        = 0; // n/a for SRAM mode A
-fsmc_norsram_timing_struct.DataSetupTime          = 0x0A;
-fsmc_norsram_timing_struct.BusTurnAroundDuration  = 0; 
-fsmc_norsram_timing_struct.CLKDivision            = 0; // n/a for SRAM mode A
-fsmc_norsram_timing_struct.DataLatency            = 0; // n/a for SRAM mode A
-fsmc_norsram_timing_struct.AccessMode             = FSMC_ACCESS_MODE_A;
-
-// fsmc_norsram_timing_struct.AddressSetupTime=0x00;
-// fsmc_norsram_timing_struct.DataSetupTime=0x0A;
-// fsmc_norsram_timing_struct.CLKDivision=0x0;
-// fsmc_norsram_timing_struct.AccessMode=FSMC_ACCESS_MODE_A;
-
-sram_init_struct.Init.NSBank             = FSMC_NORSRAM_BANK1;
-sram_init_struct.Init.DataAddressMux     = FSMC_DATA_ADDRESS_MUX_DISABLE;
-sram_init_struct.Init.MemoryType         = FSMC_MEMORY_TYPE_SRAM;
-sram_init_struct.Init.MemoryDataWidth    = FSMC_NORSRAM_MEM_BUS_WIDTH_16;
-sram_init_struct.Init.BurstAccessMode    = FSMC_BURST_ACCESS_MODE_DISABLE;
-sram_init_struct.Init.WaitSignalPolarity = FSMC_WAIT_SIGNAL_POLARITY_LOW;
-sram_init_struct.Init.WrapMode           = FSMC_WRAP_MODE_DISABLE;
-sram_init_struct.Init.WaitSignalActive   = FSMC_WAIT_TIMING_DURING_WS;
-sram_init_struct.Init.WriteOperation     = FSMC_WRITE_OPERATION_ENABLE;
-sram_init_struct.Init.WaitSignal         = FSMC_WAIT_SIGNAL_DISABLE;
-sram_init_struct.Init.ExtendedMode       = FSMC_EXTENDED_MODE_DISABLE; // maybe enable?
-sram_init_struct.Init.AsynchronousWait   = FSMC_ASYNCHRONOUS_WAIT_DISABLE;
-sram_init_struct.Init.WriteBurst         = FSMC_WRITE_BURST_DISABLE;
-
-
-HAL_SRAM_Init(&sram_init_struct, &fsmc_norsram_timing_struct, NULL);
-  // __HAL_RCC_FSMC_CLK_ENABLE();
-
-  // int FSMC_Bank = 0;
-  // FSMC_Bank1->BTCR[FSMC_Bank+1] = FSMC_BTR1_ADDSET_1 | FSMC_BTR1_DATAST_1;
-
-  // // Bank1 NOR/SRAM control register configuration
-  // FSMC_Bank1->BTCR[FSMC_Bank] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;
-
-  // SRAM_HandleTypeDef sram_init_struct;
-  // FSMC_NORSRAM_TimingTypeDef Timing;
- 
-  // /** Perform the SRAM1 memory initialization sequence
-  // */
-  // sram_init_struct.Instance = FSMC_NORSRAM_DEVICE;
-  // sram_init_struct.Extended = FSMC_NORSRAM_EXTENDED_DEVICE;
-  // /* hsram1 */
-  // sram_init_struct.Init.NSBank = FSMC_NORSRAM_BANK1;
-  // sram_init_struct.Init.DataAddressMux = FSMC_DATA_ADDRESS_MUX_DISABLE;
-  // sram_init_struct.Init.MemoryType = FSMC_MEMORY_TYPE_SRAM;
-  // sram_init_struct.Init.MemoryDataWidth = FSMC_NORSRAM_MEM_BUS_WIDTH_16;
-  // sram_init_struct.Init.BurstAccessMode = FSMC_BURST_ACCESS_MODE_DISABLE;
-  // sram_init_struct.Init.WaitSignalPolarity = FSMC_WAIT_SIGNAL_POLARITY_LOW;
-  // sram_init_struct.Init.WrapMode = FSMC_WRAP_MODE_DISABLE;
-  // sram_init_struct.Init.WaitSignalActive = FSMC_WAIT_TIMING_BEFORE_WS;
-  // sram_init_struct.Init.WriteOperation = FSMC_WRITE_OPERATION_ENABLE;
-  // sram_init_struct.Init.WaitSignal = FSMC_WAIT_SIGNAL_DISABLE;
-  // sram_init_struct.Init.ExtendedMode = FSMC_EXTENDED_MODE_DISABLE;
-  // sram_init_struct.Init.AsynchronousWait = FSMC_ASYNCHRONOUS_WAIT_DISABLE;
-  // sram_init_struct.Init.WriteBurst = FSMC_WRITE_BURST_DISABLE;
-  // /* Timing */
-  // Timing.AddressSetupTime = 5;
-  // Timing.AddressHoldTime = 1;
-  // Timing.DataSetupTime = 9;
-  // Timing.BusTurnAroundDuration = 0;
-  // Timing.CLKDivision = 1;
-  // Timing.DataLatency = 0;
-  // Timing.AccessMode = FSMC_ACCESS_MODE_A;
-  // /* ExtTiming */
- 
-  // HAL_SRAM_Init(&sram_init_struct, &Timing,&Timing);
- 
- 
-}
- int FSMC_Initialized=0;
-
-void HAL_FSMC_MspInit(void){
-
-  GPIO_InitTypeDef GPIO_InitStruct;
-  if (FSMC_Initialized) {
-    return;
-  }
-  FSMC_Initialized = 1;
-  /* Peripheral clock enable */
-  __FSMC_CLK_ENABLE();
-  __GPIOD_CLK_ENABLE();
-  __GPIOA_CLK_ENABLE();
-  __GPIOE_CLK_ENABLE();
-
-
-  GPIO_InitStruct.Pin = GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10
-                          		  |GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_13
-                         		  |GPIO_PIN_14|GPIO_PIN_15;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
-  GPIO_InitStruct.Alternate = GPIO_AF12_FSMC;
-  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
- 
-  GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11
-                          |GPIO_PIN_14|GPIO_PIN_15
-                          |GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_4|GPIO_PIN_5
-                          |GPIO_PIN_7;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
-  GPIO_InitStruct.Alternate = GPIO_AF12_FSMC;
-  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-
-  GPIO_InitStruct.Pin = GPIO_PIN_10;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
-  
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-  
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_SET); 
->>>>>>> 1431b464f78c23b93aa0524273a82cd0c40c6d30
 }
 
 void GPIO_WR(uint8_t pin, uint8_t state)
@@ -267,10 +144,9 @@ void GPIO_WR(uint8_t pin, uint8_t state)
 
 void ResetDevice(void)
 {
-<<<<<<< HEAD
-=======
+
 	//MX_FSMC_Init();
->>>>>>> 1431b464f78c23b93aa0524273a82cd0c40c6d30
+
 	HAL_FSMC_MspInit();
 	MX_FSMC_Init();
 	//Set MN(multipliers) of PLL, VCO = crystal freq * (N+1)
