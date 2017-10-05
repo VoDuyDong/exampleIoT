@@ -1,7 +1,5 @@
-#include "cmsis_os.h"
-#include "SSD1963.h"
-#include "GUI_Table.h"
 #include "Task.h"
+#include "readSensor.h"
 
 #define STACK_SIZE_MIN	128	/* usStackDepth	- the stack size DEFINED IN WORDS.*/
 
@@ -21,8 +19,6 @@ void initTask(void)
 					STACK_SIZE_MIN, NULL, tskIDLE_PRIORITY, NULL );
 	// xTaskCreate(	Task3, (const signed char*)"task3", 
 	// 				STACK_SIZE_MIN, NULL, tskIDLE_PRIORITY, NULL );
-	// xTaskCreate(	Task4, (const signed char*)"task4", 
-	// 				STACK_SIZE_MIN, NULL, tskIDLE_PRIORITY, NULL );
 
 	vTaskStartScheduler();
 }
@@ -41,6 +37,7 @@ void Task2(void *pvParameters)
 {
 	while(1)
 	{
+		Read_Sensor_SHT75();
 		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET); 
 		vTaskDelay( 200 / portTICK_RATE_MS );
 		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_RESET); 
